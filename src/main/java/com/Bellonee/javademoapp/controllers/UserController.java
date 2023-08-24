@@ -1,22 +1,28 @@
 package com.Bellonee.javademoapp.controllers;
 
 import com.Bellonee.javademoapp.dto.*;
+import com.Bellonee.javademoapp.entities.Transaction;
+import com.Bellonee.javademoapp.services.Implementation.TransactionHistoryServiceImpl;
 import com.Bellonee.javademoapp.services.UserService;
+import com.itextpdf.text.DocumentException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.FileNotFoundException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
 @Tag(name = "User Account APIs")
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private  final TransactionHistoryServiceImpl transactionHistoryServiceImpl;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @Operation(
             summary = "Create New User Account",
@@ -98,6 +104,14 @@ public class UserController {
     )
     @PostMapping("transfer")
     public BankResponse transfer(@RequestBody TransferRequest request){
+
         return userService.transfer(request);
+    }
+
+    @GetMapping("/generateHistory")
+    public List<Transaction> generateTransactionHistory(@RequestParam String accountNumber,
+                                                        @RequestParam String startDate,
+                                                        @RequestParam String endDate) throws DocumentException, FileNotFoundException {
+        return transactionHistoryServiceImpl.generateTransactionHistory(accountNumber, startDate,endDate);
     }
 }
